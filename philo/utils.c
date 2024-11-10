@@ -6,7 +6,7 @@
 /*   By: lamhal <lamhal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:44:50 by lamhal            #+#    #+#             */
-/*   Updated: 2024/11/08 21:12:44 by lamhal           ###   ########.fr       */
+/*   Updated: 2024/11/10 19:13:51 by lamhal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,13 @@ int	check_if_dead(t_philo *philo)
 		if (get_current_time() - philo[i].tm_lst_meal
 			>= philo[i].data->tm_dth && !philo[i].full)
 		{
+			pthread_mutex_unlock(&philo[i].mls_mtx);
 			pthread_mutex_lock(&philo[i].data->dead_mtx);
 			philo->data->dead = 1;
+			pthread_mutex_unlock(&philo[i].data->dead_mtx);
 			pthread_mutex_lock(&philo[i].data->prnt_mtx);
 			printf("%zu %d is dead\n", get_time_def(philo->start), i + 1);
 			pthread_mutex_unlock(&philo[i].data->prnt_mtx);
-			pthread_mutex_unlock(&philo[i].data->dead_mtx);
 			return (1);
 		}
 		pthread_mutex_unlock(&philo[i].mls_mtx);
