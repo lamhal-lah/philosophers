@@ -6,7 +6,7 @@
 /*   By: lamhal <lamhal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/06 18:30:41 by lamhal            #+#    #+#             */
-/*   Updated: 2024/09/25 17:22:43 by lamhal           ###   ########.fr       */
+/*   Updated: 2024/11/08 21:01:13 by lamhal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@
 typedef struct s_data
 {
 	int				nbr_ph;
-	int				tm_dth;
-	int				tm_slp;
-	int				tm_eat;
+	size_t			tm_dth;
+	size_t			tm_slp;
+	size_t			tm_eat;
 	int				nbr_to_eat;
 	int				dead;
 	pthread_mutex_t	*frk;
@@ -37,9 +37,10 @@ typedef struct s_philo
 {
 	int				id;
 	int				dead;
-	int				start;
-	int				tm_lst_meal;
+	size_t			start;
+	size_t			tm_lst_meal;
 	int				nbr_meals;
+	int				full;
 	pthread_t		thread;
 	pthread_mutex_t	*frst_frk;
 	pthread_mutex_t	*scnd_frk;
@@ -51,10 +52,12 @@ void	ft_putstr_fd(char *s, int fd);
 int		parsing(int ac, char **av, int *input);
 int		intailse_data(t_data *data, int *input, int ac);
 int		intailse_philos(t_data *data, t_philo *philo);
-int		get_current_time(void);
-int		get_time_def(int time);
+size_t	get_current_time(void);
+size_t	get_time_def(size_t time);
 int		ft_usleep(size_t time, t_philo *philo);
-int		ft_printf(t_philo *philo, int n);
+int		check_if_dead(t_philo *philo);
+int		check_full(t_philo *philo);
+void	ft_destroy(t_philo *philo, int index, int status);
 int		philos(t_philo *philo);
 
 #endif

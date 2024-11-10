@@ -6,7 +6,7 @@
 /*   By: lamhal <lamhal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 20:54:50 by lamhal            #+#    #+#             */
-/*   Updated: 2024/09/25 14:44:12 by lamhal           ###   ########.fr       */
+/*   Updated: 2024/11/05 16:58:43 by lamhal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	ft_putstr_fd(char *s, int fd)
 {
 	int	i;
-	
+
 	if (fd < 0 || !s)
 		return ;
 	i = 0;
@@ -36,6 +36,8 @@ int	ft_atoi(char *str, int *invalid)
 			return (*invalid = 1, 0);
 		nbr = nbr * 10 + *str - 48;
 		str++;
+		if (nbr > 2147483647)
+			return (*invalid = 1, 0);
 	}
 	return (nbr);
 }
@@ -55,9 +57,12 @@ int	parsing(int ac, char **av, int *input)
 		if (invalid)
 			return (1);
 	}
-	if (input[0] > 200)
+	i = 1;
+	if (input[0] > 200 || input[0] == 0)
 		return (1);
 	if (input[1] < 60 || input[2] < 60 || input[3] < 60)
+		return (1);
+	if (ac == 6 && input[4] == 0)
 		return (1);
 	return (0);
 }

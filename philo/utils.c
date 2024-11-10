@@ -6,13 +6,13 @@
 /*   By: lamhal <lamhal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:44:50 by lamhal            #+#    #+#             */
-/*   Updated: 2024/09/25 18:38:41 by lamhal           ###   ########.fr       */
+/*   Updated: 2024/11/08 21:12:44 by lamhal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	get_current_time(void)
+size_t	get_current_time(void)
 {
 	struct timeval	time;
 
@@ -23,13 +23,10 @@ int	get_current_time(void)
 
 int	ft_usleep(size_t time, t_philo *philo)
 {
-	int		start;
+	size_t	start;
 	size_t	tmp;
-	(void)philo;
 
 	start = get_current_time();
-	if (start == -1)
-		return (1);
 	tmp = start;
 	while (tmp - start < time)
 	{
@@ -39,40 +36,55 @@ int	ft_usleep(size_t time, t_philo *philo)
 			pthread_mutex_unlock(&philo->data->dead_mtx);
 			break ;
 		}
-		pthread_mutex_unlock(&philo->data->dead_mtx); 
+		pthread_mutex_unlock(&philo->data->dead_mtx);
 		tmp = get_current_time();
-		if (start == -1)
-			return (1);
 		usleep(100);
 	}
 	return (0);
 }
 
-int	get_time_def(int time)
+size_t	get_time_def(size_t time)
 {
 	return (get_current_time() - time);
 }
 
-int	ft_printf(t_philo *philo, int n)
+int	check_if_dead(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->data->prnt_mtx);
-	if (n == 0)
+	int	i;
+
+	i = 0;
+	while (i < philo->data->nbr_ph)
 	{
-		printf("%d %d is dead\n", get_time_def(philo->start), philo->id);
-		pthread_mutex_unlock(&philo->data->prnt_mtx);
-		return (0);
+		pthread_mutex_lock(&philo[i].mls_mtx);
+		if (get_current_time() - philo[i].tm_lst_meal
+			>= philo[i].data->tm_dth && !philo[i].full)
+		{
+			pthread_mutex_lock(&philo[i].data->dead_mtx);
+			philo->data->dead = 1;
+			pthread_mutex_lock(&philo[i].data->prnt_mtx);
+			printf("%zu %d is dead\n", get_time_def(philo->start), i + 1);
+			pthread_mutex_unlock(&philo[i].data->prnt_mtx);
+			pthread_mutex_unlock(&philo[i].data->dead_mtx);
+			return (1);
+		}
+		pthread_mutex_unlock(&philo[i].mls_mtx);
+		i++;
 	}
-	if (philo->data->dead)
-		return (pthread_mutex_unlock(&philo->data->prnt_mtx), pthread_mutex_unlock(philo->frst_frk), 1);
-	if (n == 1)
-		printf("%d %d is eating\n", get_time_def(philo->start), philo->id);
-	else if (n == 2)
-		printf("%d %d is sleeping\n", get_time_def(philo->start), philo->id);
-	else if (n == 3)
-		printf("%d %d is thinking\n", get_time_def(philo->start), philo->id);
-	else if (n == 4)
-		printf("%d %d has taking a fork\n",
-			get_time_def(philo->start), philo->id);
-	pthread_mutex_unlock(&philo->data->prnt_mtx);
 	return (0);
+}
+
+int	check_full(t_philo *philo)
+{
+	int	i;
+
+	i = 0;
+	while (i < philo->data->nbr_ph)
+	{
+		pthread_mutex_lock(&philo[i].mls_mtx);
+		if (!philo[i].full)
+			return (pthread_mutex_unlock(&philo[i].mls_mtx), 0);
+		pthread_mutex_unlock(&philo[i].mls_mtx);
+		i++;
+	}
+	return (1);
 }

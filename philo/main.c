@@ -6,7 +6,7 @@
 /*   By: lamhal <lamhal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/06 18:29:48 by lamhal            #+#    #+#             */
-/*   Updated: 2024/09/25 14:48:55 by lamhal           ###   ########.fr       */
+/*   Updated: 2024/11/08 21:01:21 by lamhal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,19 @@ int	main(int ac, char **av)
 	if (!input)
 		return (ft_putstr_fd("falled malloc\n", 2), 1);
 	if (parsing(ac, av, input))
-		return (ft_putstr_fd("invalide input\n", 2), 1);
-	philo = malloc(sizeof(t_philo) * input[0]);
-	if (!philo)
-		return (ft_putstr_fd("failled malloc\n", 2), 1);
+		return (free(input), ft_putstr_fd("invalide input\n", 2), 1);
 	if (intailse_data(&data, input, ac))
 		return (1);
+	philo = malloc(sizeof(t_philo) * input[0]);
+	if (!philo)
+		return (pthread_mutex_destroy(&data.prnt_mtx),
+			pthread_mutex_destroy(&data.dead_mtx),
+			ft_putstr_fd("falled malloc\n", 2), 1);
 	if (intailse_philos(&data, philo))
-		return (1);
-	if (philos(philo))
-		return (1);
+		return (free(philo), pthread_mutex_destroy(&data.prnt_mtx),
+			pthread_mutex_destroy(&data.dead_mtx), free(data.frk), 1);
+	philos(philo);
+	ft_destroy(philo, philo->data->nbr_ph, 1);
+	return (free(philo), pthread_mutex_destroy(&data.prnt_mtx),
+		pthread_mutex_destroy(&data.dead_mtx), free(data.frk), 0);
 }
